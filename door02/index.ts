@@ -11,12 +11,30 @@ const solvePart1 = (values: string[]): number => {
         if (isImpossible(line)) {
             return acc;
         }
-        return acc + (idx+1);
+        return acc + (idx + 1);
     }, 0);
 }
 
 const solvePart2 = (values: string[]): number => {
-    return 0;
+    return values.reduce((acc: number, line: string, idx: number) => {
+
+        const reds = Math.max(
+            ...[...(
+                line.match(/\d+(?= red)/gi) || [1]).map((val) => parseInt(val.toString(), 10)
+            )]
+        );
+        const greens = Math.max(
+            ...[...(
+                line.match(/\d+(?= green)/gi) || [1]).map((val) => parseInt(val.toString(), 10)
+            )]
+        );
+        const blues = Math.max(
+            ...[...(
+                line.match(/\d+(?= blue)/gi) || [1]).map((val) => parseInt(val.toString(), 10)
+            )]
+        );
+        return acc + (reds * greens * blues);
+    }, 0);
 }
 
 
