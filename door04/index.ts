@@ -37,10 +37,10 @@ const solvePart2 = (values: string[]): number => {
             return;
         }
 
-        const currentCardIndex = cardIndex[idx];
+        const currentCardCount = cardIndex[idx];
 
         for (let i = 1; i <= matches.length; i++) {
-            cardIndex[idx+i] += currentCardIndex;
+            cardIndex[idx+i] += currentCardCount;
         }
     });
 
