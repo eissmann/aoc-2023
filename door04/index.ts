@@ -2,15 +2,20 @@ import {getFileContent} from "../utils/fileHandling";
 
 const inputName = __dirname + '/puzzle-input'
 
+const getMatchesInLine = (line: string) => {
+    const [winning, numbers] = line.replace(/Card \d+: /gi, '').split('|');
+
+    const winningNumbers = winning.split(' ');
+
+    return numbers.split(' ').filter((number) => {
+        return number !== '' && winningNumbers.includes(number)
+    });
+}
+
+
 const solvePart1 = (values: string[]): number => {
     return values.reduce((acc: number, line: string) => {
-        const [winning, numbers] = line.replace(/Card \d+: /gi, '').split('|');
-
-        const winningNumbers = winning.split(' ');
-
-        const matches = numbers.split(' ').filter((number) => {
-            return number !== '' && winningNumbers.includes(number)
-        });
+        const matches = getMatchesInLine(line);
 
         if (matches.length === 0) {
             return acc;
@@ -26,13 +31,7 @@ const solvePart2 = (values: string[]): number => {
     cardIndex.fill(1, 0, values.length);
 
     values.map((line: string, idx: number) => {
-        const [winning, numbers] = line.replace(/Card \d+: /gi, '').split('|');
-
-        const winningNumbers = winning.split(' ');
-
-        const matches = numbers.split(' ').filter((number) => {
-            return number !== '' && winningNumbers.includes(number)
-        });
+        const matches = getMatchesInLine(line);
 
         if (matches.length === 0) {
             return;
