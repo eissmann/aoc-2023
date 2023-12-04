@@ -63,7 +63,89 @@ const solvePart1 = (values: string[]): number => {
 }
 
 const solvePart2 = (values: string[]): number => {
-    return 0;
+    return values.reduce((acc: number, line: string, idx: number) => {
+        const possibleGears = [...line.matchAll(/\*/gi)] || [];
+
+        if (possibleGears.length === 0) {
+            return acc;
+        }
+
+        // find connecting numbers in same line
+        const numbersSameLine = [...line.matchAll(/\d+/gi)] || [];
+
+        // in line above
+        const numbersLineAbove = idx > 0 ? [...values[idx-1].matchAll(/\d+/gi)] || [] : [];
+
+        // in line below
+        const numbersLineBelow = idx < values.length - 1 ? [...values[idx+1].matchAll(/\d+/gi)] || [] : [];
+
+        let result: number = 0;
+
+        possibleGears.forEach((gear) => {
+            const connectedNumbers: any[] = [];
+            const gearIndex = gear['index'] === undefined ? -1 : gear['index'];
+
+            if(gearIndex === -1) {
+                return;
+            }
+
+            numbersSameLine.forEach((number) => {
+                // does number connect to gear?
+                const len = number[0].toString().length;
+                const charIdx: number = number['index'] === undefined ? -1 : number['index'];
+
+                if (charIdx === -1) {
+                    return;
+                }
+
+                // number after
+                if (charIdx === gearIndex+1) {
+                    connectedNumbers.push(number);
+                }
+
+                if (charIdx+len === gearIndex) {
+                    connectedNumbers.push(number);
+                }
+            });
+
+            numbersLineAbove.forEach((number) => {
+                // does number connect to gear?
+                const len = number[0].toString().length;
+                const charIdx: number = number['index'] === undefined ? -1 : number['index'];
+
+                if (charIdx === -1) {
+                    return false;
+                }
+
+                if (gearIndex <= charIdx+len && gearIndex >= charIdx-1) {
+                    connectedNumbers.push(number);
+                }
+            });
+
+            numbersLineBelow.forEach((number) => {
+                // does number connect to gear?
+                const len = number[0].toString().length;
+                const charIdx: number = number['index'] === undefined ? -1 : number['index'];
+
+                if (charIdx === -1) {
+                    return false;
+                }
+
+                if (gearIndex <= charIdx+len && gearIndex >= charIdx-1) {
+                    connectedNumbers.push(number);
+                }
+            });
+
+            if (connectedNumbers.length > 1) {
+                result += connectedNumbers.reduce((accInner: number, number: RegExpMatchArray) => {
+                    return accInner * parseInt(number[0], 10);
+                }, 1);
+            }
+
+        });
+
+        return acc + result;
+    }, 0);
 }
 
 
