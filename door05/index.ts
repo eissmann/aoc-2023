@@ -8,14 +8,11 @@ const getSimpleSeeds = (line: string): number[] => {
     return seedsLine
         .split(' ')
         .filter((seed) => seed !== '')
-        .map((seed) => parseInt(seed, 10))
+        .map((seed) => +seed)
         ;
 }
 
-const getLowestLocation = (values: string[], seeds: number[]): number => {
-    let currentValues: any = [];
-    let previousValues: any = [...seeds];
-
+function parseInput(values: string[]) {
     // destinationId => sourceId
     const map: any = {
         soil: [],
@@ -30,7 +27,7 @@ const getLowestLocation = (values: string[], seeds: number[]): number => {
     const supportedTypes: string[] = ['soil', 'fertilizer', 'water', 'light', 'temperature', 'humidity', 'location'];
     const mappedLines = map;
 
-    values.map((line: string) => {
+    values.forEach((line: string) => {
         // seeds
         if (line.startsWith('seeds:')) {
             return;
@@ -48,17 +45,23 @@ const getLowestLocation = (values: string[], seeds: number[]): number => {
             return;
         }
         const [destination, source, len] = line.split(' ');
-        const dest = parseInt(destination, 10);
-        const src = parseInt(source, 10);
-        const length = parseInt(len, 10);
+        const dest = +destination;
+        const src = +source;
+        const length = +len;
 
         mappedLines[type][mappedLines[type].length] = {dest, src, length};
     });
+    return {supportedTypes, mappedLines};
+}
 
-    supportedTypes.map((type: string) => {
-        previousValues.map((val: number) => {
+const getLowestLocation = (values: string[], seeds: number[], supportedTypes:any, mappedLines:any): number => {
+    let currentValues: any = [];
+    let previousValues: any = [...seeds];
+
+    supportedTypes.forEach((type: string) => {
+        previousValues.forEach((val: number) => {
             let pushed = false;
-            mappedLines[type].map((line: { dest: number, src: number, length: number }) => {
+            mappedLines[type].forEach((line: { dest: number, src: number, length: number }) => {
                 // @ts-ignore
                 if (val >= line.src && val <= line.src + line.length - 1) {
                     const offset = val as number - line.src;
@@ -80,7 +83,7 @@ const getLowestLocation = (values: string[], seeds: number[]): number => {
     return Math.min(...previousValues);
 }
 
-const solvePart2 = (values: string[]): number => {
+const solvePart2 = (values: string[], supportedTypes:any, mappedLines:any): number => {
     let lowestLocation = -1;
     let locationNumber = 0;
     const seeds = getSimpleSeeds(values[0]);
@@ -94,17 +97,18 @@ const solvePart2 = (values: string[]): number => {
             range[range.length] = i;
             counter++;
             if ((counter % 1000) === 0) {
-                locationNumber = getLowestLocation(values, range)
+                locationNumber = getLowestLocation(values, range, supportedTypes, mappedLines)
                 lowestLocation = lowestLocation > -1 ? Math.min(lowestLocation, locationNumber) : locationNumber;
                 counter % 1000000 === 0 ? process.stdout.write('.') : null;
 
                 range = [];
             }
         }
+        console.log(lowestLocation);
     }
 
     if (range.length > 0) {
-        lowestLocation = lowestLocation > -1 ? Math.min(lowestLocation, getLowestLocation(values, range)) : getLowestLocation(values, range);
+        lowestLocation = lowestLocation > -1 ? Math.min(lowestLocation, getLowestLocation(values, range, supportedTypes, mappedLines)) : getLowestLocation(values, range, supportedTypes, mappedLines);
     }
 
     return lowestLocation;
@@ -115,8 +119,9 @@ const solvePart2 = (values: string[]): number => {
 function solve() {
     const values = getFileContent(inputName).split('\n')
 
-    console.log('Part 1:', getLowestLocation(values, getSimpleSeeds(values[0]))) // 551761867
-    console.log('Part 2:', solvePart2(values))
+    const {supportedTypes, mappedLines} = parseInput(values);
+    console.log('Part 1:', getLowestLocation(values, getSimpleSeeds(values[0]), supportedTypes, mappedLines)) // 551761867
+    console.log('Part 2:', solvePart2(values, supportedTypes, mappedLines))
 }
 
 solve()
