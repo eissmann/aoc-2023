@@ -61,14 +61,16 @@ const getLowestLocation = (values: string[], seeds: number[], supportedTypes:any
     supportedTypes.forEach((type: string) => {
         previousValues.forEach((val: number) => {
             let pushed = false;
-            mappedLines[type].forEach((line: { dest: number, src: number, length: number }) => {
+
+            for (const line of mappedLines[type]) {
                 // @ts-ignore
                 if (val >= line.src && val <= line.src + line.length - 1) {
                     const offset = val as number - line.src;
                     currentValues[currentValues.length] = line.dest + offset;
                     pushed = true;
+                    break;
                 }
-            });
+            }
 
             if (!pushed) {
                 currentValues[currentValues.length] = val;
