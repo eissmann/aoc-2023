@@ -3,12 +3,29 @@ import {getFileContent} from "../utils/fileHandling";
 const inputName = __dirname + '/puzzle-input'
 
 const cards = ['A', 'K', 'Q', 'J', 'T', '9', '8', '7', '6', '5', '4', '3', '2'];
+const cards2 = ['A', 'K', 'Q', 'T', '9', '8', '7', '6', '5', '4', '3', '2'];
 
 const cardValues:{[key:string]:number} = {
     A: 14,
     K: 13,
     Q: 12,
     J: 11,
+    T: 10,
+    9: 9,
+    8: 8,
+    7: 7,
+    6: 6,
+    5: 5,
+    4: 4,
+    3: 3,
+    2: 2,
+}
+
+const cardValues2:{[key:string]:number} = {
+    A: 14,
+    K: 13,
+    Q: 12,
+    J: 1,
     T: 10,
     9: 9,
     8: 8,
@@ -137,9 +154,170 @@ const solvePart1 = (values: string[]): number => {
 }
 
 const solvePart2 = (values: string[]): number => {
-    return 0;
-}
+    const results: {hand: string, bid: number, bucket: number}[] = values.map((value) => {
+        const [hand, bid] = value.split(' ');
 
+        const differentChars = Array.from(new Set(hand.split(''))).length;
+        const numberOfJs = (hand.match(new RegExp('J', 'gi')) || []).length
+
+        // five of a kind
+        if (differentChars === 1) {
+            return {
+                hand,
+                bid: +bid,
+                bucket: FIVE_OF_A_KIND,
+            }
+        }
+
+        if (differentChars === 2) {
+            if (numberOfJs >= 1) {
+                return {
+                    hand,
+                    bid: +bid,
+                    bucket: FIVE_OF_A_KIND,
+                }
+            }
+        }
+
+        if (differentChars === 3) {
+            if (numberOfJs === 1) {
+                // three or four of a kind
+            }
+
+            if (numberOfJs >= 2) {
+                return {
+                    hand,
+                    bid: +bid,
+                    bucket: FOUR_OF_A_KIND,
+                }
+            }
+        }
+
+        // one pair
+        if (differentChars === 4) {
+            if (numberOfJs >= 1) {
+                return {
+                    hand,
+                    bid: +bid,
+                    bucket: THREE_OF_A_KIND,
+                }
+            }
+
+            return {
+                hand,
+                bid: +bid,
+                bucket: ONE_PAIR,
+            }
+        }
+        // high card
+        if (differentChars === 5) {
+            if (numberOfJs === 1) {
+                return {
+                    hand,
+                    bid: +bid,
+                    bucket: ONE_PAIR,
+                }
+            }
+            return {
+                hand,
+                bid: +bid,
+                bucket: HIGH_CARD,
+            }
+        }
+
+        let result = {
+            hand,
+            bid: +bid,
+            bucket: EMPTY,
+        }
+
+        // check the rest
+        for (const char of cards2) {
+            const numberOfOccurrences = (hand.match(new RegExp(char, 'gi')) || []).length;
+            // console.log(char, numberOfOccurrences);
+
+            if (numberOfOccurrences === 0) {
+                continue;
+            }
+
+            if (numberOfOccurrences === 4) {
+                result.bucket = FOUR_OF_A_KIND;
+                return result;
+            }
+
+            if (numberOfOccurrences === 3) {
+                if (differentChars === 2) {
+                    if (numberOfJs >= 1) {
+                        result.bucket = FIVE_OF_A_KIND;
+                    } else {
+                        result.bucket = FULL_HOUSE;
+                    }
+                } else {
+                    if (numberOfJs >= 1) {
+                        result.bucket = FOUR_OF_A_KIND;
+                    } else {
+                        result.bucket = THREE_OF_A_KIND;
+                    }
+                }
+                return result;
+            }
+
+            if (numberOfOccurrences === 2) {
+                if (differentChars === 2) {
+                    if (numberOfJs >= 1) {
+                        result.bucket = FIVE_OF_A_KIND;
+                    } else {
+                        result.bucket = FULL_HOUSE;
+                    }
+                } else if (differentChars === 3) {
+                    if (numberOfJs > 1) {
+                        result.bucket = FOUR_OF_A_KIND;
+                    } else if (numberOfJs === 1) {
+                        result.bucket = FULL_HOUSE;
+                    } else {
+                        result.bucket = TWO_PAIRS;
+                    }
+                } else {
+                    console.log(hand);
+                }
+                return result;
+            }
+        }
+        return result;
+    });
+
+    const sorted = results.sort((a, b) => {
+        //(a > b ? -1 : 0)
+        if (a.bucket > b.bucket) {
+            return -1;
+        }
+
+        if (a.bucket === b.bucket) {
+            // sort by highcard
+            let counter = 0;
+            while (counter < 5) {
+                const aCard = cardValues2[a.hand[counter].toUpperCase()];
+                const bCard = cardValues2[b.hand[counter].toUpperCase()];
+
+                if (aCard > bCard) {
+                    return 0;
+                }
+                if (aCard < bCard) {
+                    return -1;
+                }
+                counter++;
+            }
+
+        }
+
+        return 0;
+    });
+
+    // console.log(sorted);
+    return sorted.reduce((acc, curr, currentIndex) => {
+        return acc + (curr.bid * (currentIndex+1));
+    }, 0);
+}
 
 function solve() {
     const values = getFileContent(inputName).split('\n')
