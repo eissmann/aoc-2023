@@ -29,7 +29,34 @@ const solvePart1 = (values: string[], start: string): number => {
 }
 
 const solvePart2 = (values: string[]): number => {
-    return 0;
+    const instructions = values[0].split('');
+    const starts: string[]  = [];
+    values.slice(2).map((value, valueIndex) => {
+        const [idx, left, right] = value.replaceAll(/ |\(|\)/gi, '').replace('=', ',').split(',');
+        map[idx] = {L:left, R:right};
+
+        if (idx.endsWith('A')) {
+            starts.push(idx);
+        }
+
+    });
+
+    const lengths = starts.map((current) => {
+        let steps = 0;
+        while(true) {
+            // @ts-ignore
+            current = map[current][instructions[steps % instructions.length]];
+            steps++;
+            if (current.endsWith('Z')) {
+                return steps;
+            }
+        }
+    });
+
+    // input allows calculation of LCM, so we do it :)
+    const gcd = (a: number, b: number): number => a ? gcd(b % a, a) : b;
+    const lcm = (a: number, b: number) => a * b / gcd(a, b);
+    return lengths.reduce(lcm);
 }
 
 
