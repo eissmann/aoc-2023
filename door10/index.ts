@@ -131,7 +131,7 @@ const solvePart1 = (values: string[]): number => {
             // let a = 0;
             if (!isContour && idx > 0 && i > 0 && idx < values.length-1 && i <= val.length-1) {
                 h = isLoop.filter((el) => {
-                    // S might be of importance here as well ?!
+                    // S might be of importance here as well ?! ... check for every cross going in one vertical direction
                     return el[1] === idx && el[0] < i && ['|','L','J'].includes(values[el[1]][el[0]]);
                 }).length;
             }
