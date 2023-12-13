@@ -1,0 +1,75 @@
+import {getFileContent} from "../utils/fileHandling";
+
+const inputName = __dirname + '/puzzle-input'
+
+const solvePart1 = (values: string[]): number => {
+    let result = 0;
+
+    values.map((val, blockIdx) => {
+        const lines = val.split('\n');
+        let validHorizontal = false;
+        for ( let i=0; i<lines.length-1; i++) {
+            if (!validHorizontal && lines[i] === lines[i+1]) {
+                // is connected to left ?
+                if (lines.slice(i+1).join('').includes(lines.slice(0, i+1).reverse().join(''))) {
+                    validHorizontal = true;
+                }
+
+                // is connected to right ?
+                if (lines.slice(0, i+1).join('').includes(lines.slice(i+1).reverse().join(''))) {
+                    validHorizontal = true;
+                }
+
+                if (validHorizontal) {
+                    // console.log(i, 'lines')
+                    result += 100*(i+1);
+                }
+            }
+        }
+
+
+        const cols = lines[0].split('').map((_, colIndex) => lines.map(row => row[colIndex])).map(el => el.join(''));
+        let validVertical = false;
+        for ( let i=0; i<cols.length-1; i++) {
+            if (!validVertical && cols[i] === cols[i+1]) {
+                // is connected to left (top) ?
+                if (cols.slice(0,i+1).join('').endsWith(cols.slice(i+1).reverse().join(''))) {
+                    console.log(cols.slice(0, i+1).join('\n'), ' -> ', cols.slice(i+1).reverse().join('\n'));
+
+                    validVertical = true;
+                }
+                console.log('-----')
+
+                // is connected to right (bottom)?
+                if (cols.slice(i+1).join('').startsWith(cols.slice(0, i+1).reverse().join(''))) {
+                    console.log(cols.slice(i+1).join('\n'), ' -> ', cols.slice(0, i+1).reverse().join('\n'));
+
+                    validVertical = true;
+                }
+
+                if (validVertical) {
+                    console.log(i, 'cols')
+                    result += i+1;
+                }
+            }
+        }
+
+        console.log(blockIdx, result);
+
+    });
+    return result;
+}
+
+const solvePart2 = (values: string[]): number => {
+    return 0;
+}
+
+
+function solve() {
+    const values = getFileContent(inputName).split('\n\n')
+
+    console.log('Part 1:', solvePart1(values))
+    // console.log('Part 2:', solvePart1(values, true))
+}
+
+solve()
