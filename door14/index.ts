@@ -62,7 +62,7 @@ const solvePart1 = (values: string[]): number => {
     return result;
 }
 
-const solvePart2 = (values: string[], cycles: number): number => {
+const solvePart2 = (values: string[], movementCycles: number): number => {
     let platform = values.map(el => el.split(''));
     const iRows = platform.length;
     const iCols = platform[0].length;
@@ -77,7 +77,7 @@ const solvePart2 = (values: string[], cycles: number): number => {
     let refString = '';
     let r = 0;
 
-    for (let i=0; i<cycles && !cycleEnded; i++) {
+    for (let i=0; i<movementCycles && !cycleEnded; i++) {
         platform = tiltNorth(platform, iRows, iCols);
         platform = tiltWest(platform, iRows, iCols);
         platform = tiltNorth(platform.reverse(), iRows, iCols).reverse();
@@ -108,7 +108,7 @@ const solvePart2 = (values: string[], cycles: number): number => {
     }
 
     const cycleLength = cycle[1] - cycle[0];
-    const val = (cycles - (cycle[0]+1)) % cycleLength;
+    const val = (movementCycles - (cycle[0]+1)) % cycleLength;
     // console.log(results[(cycle[0] + val)-cylceLength], val);
 
     return cycleEnded ? results[(cycle[0] + val)-cycleLength] : r;
