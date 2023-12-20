@@ -24,6 +24,8 @@ const solvePart1 = (modules: modules, part1 = true): number => {
     let lows = 0;
     let highs = 0;
 
+    let modsForMg: {[p:string]:number} = {};
+
     for (let i=0; i< (part1 ? 1000 : 10000); i++) {
         worker.push({pulse: 0, module: 'broadcaster', sender: 'button'});
 
@@ -34,9 +36,13 @@ const solvePart1 = (modules: modules, part1 = true): number => {
 
             const module = modules[workload.module]
 
-            // debug output for part 2
+            // for part 2
             if (!part1 && (workload.module === 'mg' && workload.pulse === 1)) {
-                console.log(i, workload.sender);
+                if (modsForMg[workload.sender] || modsForMg[workload.sender] > 0) {
+                    modsForMg[workload.sender] -= i;
+                } else if (!modsForMg[workload.sender]) {
+                    modsForMg[workload.sender] = i;
+                }
             }
 
             if (module === undefined) {
@@ -92,6 +98,14 @@ const solvePart1 = (modules: modules, part1 = true): number => {
             }
         }
     }
+
+    if (!part1) {
+        const gcd = (a: number, b: number): number => a ? gcd(b % a, a) : b;
+        const lcm = (a: number, b: number) => a * b / gcd(a, b);
+
+        return Object.entries(modsForMg).map((mg) => Math.abs(mg[1]) ).reduce(lcm);
+    }
+
 
     return lows * highs;
 }
